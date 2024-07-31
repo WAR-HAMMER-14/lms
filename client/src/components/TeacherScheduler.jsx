@@ -1,6 +1,7 @@
 import React from 'react'
 import Sidebar from './include/Sidebar'
 import Header from './include/Header'
+import { useState, useEffect } from 'react';
 
 import Paper from '@mui/material/Paper';
 import { ViewState, EditingState } from '@devexpress/dx-react-scheduler';
@@ -21,11 +22,6 @@ import {
   TodayButton,
 } from '@devexpress/dx-react-scheduler-material-ui';
 
-const currentDate = '2018-11-01';
-// const schedulerData = [
-//   { startDate: '2018-11-01T09:45', endDate: '2018-11-01T11:00', title: 'Meeting' },
-//   { startDate: '2018-11-01T12:00', endDate: '2018-11-01T13:30', title: 'Go to a gym' },
-// ];
 const appointments = [
     {
       title: 'Website Re-Design Plan',
@@ -130,123 +126,73 @@ const appointments = [
     },
   ];
 
+const TeacherScheduler = () => {
+  const [data, setData] = useState(appointments);
+  const [currentViewName, setCurrentViewName] = useState('work-week');
+  const [addedAppointment, setAddedAppointment] = useState({});
+  const [appointmentChanges, setAppointmentChanges] = useState({});
+  const [editingAppointment, setEditingAppointment] = useState(undefined);
 
-export default class TeacherScheduler extends React.PureComponent {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-          data: appointments,
-          currentDate: '2018-06-27',
-          currentViewName: 'work-week',
-    
-          addedAppointment: {},
-          appointmentChanges: {},
-          editingAppointment: undefined,
-        };
-    
-        this.currentViewNameChange = (currentViewName) => {
-            this.setState({ currentViewName });
-          };
-        this.commitChanges = this.commitChanges.bind(this);
-        this.changeAddedAppointment = this.changeAddedAppointment.bind(this);
-        this.changeAppointmentChanges = this.changeAppointmentChanges.bind(this);
-        this.changeEditingAppointment = this.changeEditingAppointment.bind(this);
+  const commitChanges = ({ added, changed, deleted }) => {
+    setData((prevData) => {
+      let newData = [...prevData];
+      if (added) {
+        const startingAddedId = newData.length > 0 ? newData[newData.length - 1].id + 1 : 0;
+        newData = [...newData, { id: startingAddedId, ...added }];
       }
-    
-      changeAddedAppointment(addedAppointment) {
-        this.setState({ addedAppointment });
-        console.log(addedAppointment);
+      if (changed) {
+        newData = newData.map(appointment => (
+          changed[appointment.id] ? { ...appointment, ...changed[appointment.id] } : appointment
+        ));
       }
-    
-      changeAppointmentChanges(appointmentChanges) {
-        this.setState({ appointmentChanges });
+      if (deleted !== undefined) {
+        newData = newData.filter(appointment => appointment.id !== deleted);
       }
-    
-      changeEditingAppointment(editingAppointment) {
-        this.setState({ editingAppointment });
-      }
-    
-      commitChanges({ added, changed, deleted }) {
-        this.setState((state) => {
-          let { data } = state;
-          if (added) {
-            const startingAddedId = data.length > 0 ? data[data.length - 1].id + 1 : 0;
-            data = [...data, { id: startingAddedId, ...added }];
-          }
-          if (changed) {
-            data = data.map(appointment => (
-              changed[appointment.id] ? { ...appointment, ...changed[appointment.id] } : appointment));
-          }
-          if (deleted !== undefined) {
-            data = data.filter(appointment => appointment.id !== deleted);
-          }
-          return { data };
-        });
-      }
-    
-      render() {
-        const {
-          currentDate, data, addedAppointment, appointmentChanges, editingAppointment, currentViewName,
-        } = this.state;
-
+      // Update backend here (added/changed/deleted)
+      return newData;
+    });
+  };
 
   return (
     <>
-        <Sidebar />
-		<section id="content" className="contentcss">
-        <Header />	
-
+      <Sidebar />
+      <section id="content" className="contentcss">
+        <Header />
         <Paper>
-        <Scheduler
-          data={data}
-          height={660}
-        >
-          <ViewState
-            defaultCurrentDate="2018-07-25"
-            currentViewName={currentViewName}
-            onCurrentViewNameChange={this.currentViewNameChange}
-          />
-          <EditingState
-            onCommitChanges={this.commitChanges}
-            addedAppointment={addedAppointment}
-            onAddedAppointmentChange={this.changeAddedAppointment}
-            appointmentChanges={appointmentChanges}
-            onAppointmentChangesChange={this.changeAppointmentChanges}
-            editingAppointment={editingAppointment}
-            onEditingAppointmentChange={this.changeEditingAppointment}
-          />
-          <WeekView
-            startDayHour={10}
-            endDayHour={19}
-          />
-          <WeekView
-            name="work-week"
-            displayName="Work Week"
-            excludedDays={[0, 6]}
-            startDayHour={9}
-            endDayHour={19}
-          />
-          <MonthView />
-          <DayView />
-          <Toolbar />
-          <DateNavigator />
-          <TodayButton />
-          <ViewSwitcher />
-          <AllDayPanel />
-          <EditRecurrenceMenu />
-          <ConfirmationDialog />
-          <Appointments />
-          <AppointmentTooltip
-            showOpenButton
-            showDeleteButton
-          />
-          <AppointmentForm />
-        </Scheduler>
-      </Paper>
-
-        </section>
+          <Scheduler data={data} height={660}>
+            <ViewState
+              defaultCurrentDate="2018-07-25"
+              currentViewName={currentViewName}
+              onCurrentViewNameChange={setCurrentViewName}
+            />
+            <EditingState
+              onCommitChanges={commitChanges}
+              addedAppointment={addedAppointment}
+              onAddedAppointmentChange={setAddedAppointment}
+              appointmentChanges={appointmentChanges}
+              onAppointmentChangesChange={setAppointmentChanges}
+              editingAppointment={editingAppointment}
+              onEditingAppointmentChange={setEditingAppointment}
+            />
+            <WeekView startDayHour={10} endDayHour={19} />
+            <WeekView name="work-week" displayName="Work Week" excludedDays={[0, 6]} startDayHour={9} endDayHour={19} />
+            <MonthView />
+            <DayView />
+            <Toolbar />
+            <DateNavigator />
+            <TodayButton />
+            <ViewSwitcher />
+            <AllDayPanel />
+            <EditRecurrenceMenu />
+            <ConfirmationDialog />
+            <Appointments />
+            <AppointmentTooltip showOpenButton showDeleteButton />
+            <AppointmentForm />
+          </Scheduler>
+        </Paper>
+      </section>
     </>
-    );
-    }
-}
+  );
+};
+
+export default TeacherScheduler;
