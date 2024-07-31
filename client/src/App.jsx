@@ -8,6 +8,7 @@ import Logout from './components/Logout'
 import DashboardAdmin from './components/admin/DashboardAdmin'
 import AdminCourses from './components/admin/AdminCourses'
 import CourseAddEdit from './components/admin/CourseAddEdit'
+import TeacherScheduler from './components/TeacherScheduler'
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
 				<Route path='/logout' element={<Logout />} />
 				<Route path='/adminCourses' element={<AdminCourses />} />
 				<Route path='/courseEdit/:course_id' element={<CourseAddEdit />} />
+				<Route path='/scheduler' element={<TeacherScheduler />} />
 				<Route path='*' element={<h1>404</h1>} />
 			</Routes>
 		</BrowserRouter>

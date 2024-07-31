@@ -18,6 +18,8 @@ const Sidebar = () => {
         { path: '/studentCertificates', link_logo: "bi bi-patch-check", link_name: 'Certificate', access: 'S' },
         { path: '/studentSettings', link_logo: "bi bi-gear", link_name: 'Settings', access: 'S' },
 
+        { path: '/scheduler', link_logo: "bi bi-calendar", link_name: 'Scheduler', access: 'T' },
+
         { path: '/adminDashboard', link_logo: "bi bi-house", link_name: 'Dashboard', access: 'admin' },
         { path: '/adminCourses', link_logo: "bi bi-journal-code", link_name: 'Courses', access: 'admin' },
         { path: '/adminAdd', link_logo: "bi bi-person-circle", link_name: 'Add', access: 'admin' },
